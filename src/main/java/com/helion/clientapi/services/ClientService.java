@@ -2,6 +2,8 @@ package com.helion.clientapi.services;
 
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +42,21 @@ public class ClientService {
 		return new ClientDTO(entity);
 	}
 
+	
+	@Transactional
+	public ClientDTO update(Long id, ClientDTO dto) {
+		try {
+			Client entity = repository.getOne(id);
+			copyDtoToEntity(entity, dto);
+			entity = repository.save(entity);
+			return new ClientDTO(entity);
+		}
+		catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id não encontrado na base de dados : "+id);
+		}
+	}
+	
+	
 	private void copyDtoToEntity(Client entity, ClientDTO dto) {
 		
 		entity.setName(dto.getName());
